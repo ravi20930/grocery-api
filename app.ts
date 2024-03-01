@@ -1,6 +1,5 @@
 import "dotenv/config";
 import express from "express";
-import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
 
@@ -14,7 +13,6 @@ const { PORT, DB_SYNC_FLAG, NODE_ENV } = process.env;
 const shouldSync = DB_SYNC_FLAG === "true";
 
 app.use(cors());
-app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
