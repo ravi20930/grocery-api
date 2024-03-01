@@ -97,7 +97,12 @@ This project is a Grocery Booking API that facilitates managing grocery items, u
    GOOGLE_AUTH_CALLBACK_URL=http://localhost:3009/api/auth/google/callback
    ```
 
-6. Optionally, manually insert the first admin user into the database for security concerns.
+6. First admin must be inserted manually into the database for security concerns.
+
+```
+INSERT INTO Groups (id, name, createdAt, updatedAt) VALUES (<UUID>, 'ADMIN', NOW(), NOW());
+INSERT INTO UserGroups (id, groupId, userId, createdAt, updatedAt) VALUES (<UUID>, <GROUP_ID>, <USER_ID>, NOW(), NOW());
+```
 
 7. Start the server:
 
