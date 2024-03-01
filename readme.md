@@ -74,13 +74,42 @@ This project is a Grocery Booking API that facilitates managing grocery items, u
 
 4. Update JWT secrets, expiry times, and Google OAuth credentials in the `.env` file.
 
-5. Optionally, manually insert the first admin user into the database for security concerns.
+5. Final `.env` should look like this along with their values:
 
-6. Start the server:
+   ```plaintext
 
+   NODE_ENV=development
+   PORT=3009
+   DB_SYNC_FLAG=true
+
+   DB_CONNECTION=mysql
+   DB_HOST=localhost
+   DB_DATABASE=grocery
+   DB_USERNAME=root
+   DB_PASSWORD=password
+
+   JWT_ACCESS_SECRET=
+   JWT_ACCESS_EXPIRY=7d
+   JWT_REFRESH_SECRET=
+   JWT_REFRESH_EXPIRY=30d
+
+   GOOGLE_CLIENT_ID=
+   GOOGLE_CLIENT_SECRET=
+   GOOGLE_AUTH_CALLBACK_URL=http://localhost:3009/api/auth/google/callback
    ```
-   yarn build
-   yarn start
-   ```
+
+```
+
+6. Optionally, manually insert the first admin user into the database for security concerns.
+
+7. Start the server:
+
+```
+
+yarn build
+yarn start
+
+```
 
 Ensure all environment variables are properly configured to run the application smoothly.
+```
