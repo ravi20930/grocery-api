@@ -1,7 +1,16 @@
-import { Op, literal, fn, col, QueryTypes } from "sequelize";
-import { User, Book, Order, UserImages, Customer } from "../models";
+import { Op, QueryTypes } from "sequelize";
+import { User, Order, GroceryItem } from "../models";
 import { throwError } from "../utils/handler";
 import { sequelize } from "../config/database";
+import { getPagination, getPagingData } from "../utils/pagination";
+
+interface getAllRequestQuery {
+  page?: number;
+  size?: number;
+  sortbyInventory?: boolean;
+  order?: string;
+  id?: string;
+}
 
 export const profile = async (userId: string) => {
   return User.findByPk(userId);
@@ -24,64 +33,91 @@ export const findOrCreateByGoogleId = async (
   return user;
 };
 
-export const uploadImage = async (userId: string, urls: string[]) => {
-  await UserImages.bulkCreate(
-    urls.map((imageUrl) => ({
-      userId,
-      imageUrl,
-    }))
-  );
+/**
+ * List grocery items.
+ */
+export const getGroceryItems = async (reqQuery: getAllRequestQuery) => {
+  const { page, size, sortbyInventory, order, id } = reqQuery;
+  const { limit, offset } = getPagination(page || 0, size || 10);
+
+  const query: any = {};
+  let whereCondition: any = { inventory: { [Op.gt]: 0 } };
+
+  if (sortbyInventory && order) {
+    query.order = [["inventory", order]];
+  }
+  if (whereCondition) {
+    query.where = whereCondition;
+  }
+
+  if (id) {
+    whereCondition = { id };
+  }
+
+  query.where = whereCondition;
+  query.limit = limit;
+  query.offset = offset;
+  query.attributes = ["id", "name", "price", "inventory"];
+
+  const groceryItems = await GroceryItem.findAndCountAll(query);
+
+  if (!groceryItems) {
+    throwError(404, "Grocery items not found.");
+  }
+  const response = getPagingData(groceryItems, page || 0, limit);
+  return response;
 };
 
-export const createNewOrder = async (userId: string, bookIds: number[]) => {
-  const customer = await Customer.findByPk(userId);
+export const createNewOrder = async (userId: string, itemIds: number[]) => {
+  const customer = await User.findByPk(userId);
   if (!customer) {
     throwError(404, "Customer not found");
   }
-  const books = await Book.findAll({
+  const items = await GroceryItem.findAll({
     where: {
       id: {
-        [Op.in]: bookIds,
+        [Op.in]: itemIds,
       },
     },
   });
-  // console.log({ books, customer });
+  // console.log({ items, customer });
 
-  if (!books || books.length !== bookIds.length) {
-    throwError(404, "One or more books not found");
+  if (!items || items.length !== itemIds.length) {
+    throwError(404, "One or more items not found");
   }
 
-  const totalBookPrice = books.reduce(
-    (acc, book) => acc + parseFloat(book.price.toString()),
+  const totalItemPrice = items.reduce(
+    (acc, item) => acc + parseFloat(item.price.toString()),
     0
   );
 
-  console.log({ totalBookPrice });
+  console.log({ totalItemPrice });
 
   const order = Order.build({
-    orderValue: totalBookPrice,
+    orderValue: totalItemPrice,
     customerId: userId,
   });
   await order.save();
-  await order.addBooks(books.map((book) => book.id));
+  await order.addGroceryItems(items.map((item) => item.id));
   return order;
 };
 
-export const topSellingBooks = async (count: number) => {
-  const topSellingBooks = await sequelize.query(
+export const topSellingItems = async (count: number) => {
+  const topSellingItems = await sequelize.query(
     `
     SELECT
       b.id,
-      b.title,
-      b.isbn,
       b.price,
-      COUNT(oi.bookId) AS orderCount
+      b.name,
+      COUNT(oi.itemId) AS orderCount
     FROM
-      Books AS b
+      GroceryItems AS b
     LEFT JOIN
-      OrderItem AS oi ON b.id = oi.bookId
+      OrderItem AS oi ON b.id = oi.itemId
     GROUP BY
       b.id
+    HAVING
+      orderCount > 0
     ORDER BY
       orderCount DESC
     LIMIT :count;
@@ -92,5 +128,5 @@ export const topSellingBooks = async (count: number) => {
     }
   );
 
-  return topSellingBooks;
+  return topSellingItems;
 };

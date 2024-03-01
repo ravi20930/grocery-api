@@ -1,4 +1,3 @@
-import Book from "./GroceryItem";
 import Order from "./Order";
 import User from "./User";
 import Group from "./Group";
@@ -9,17 +8,17 @@ Group.hasOne(UserGroup, { as: "groupUser", foreignKey: "groupId" });
 UserGroup.belongsTo(Group, { as: "group", foreignKey: "groupId" });
 User.hasOne(UserGroup, { as: "userGroup", foreignKey: "userId" });
 
-// Define the many-to-many association between Order and Book
-Order.belongsToMany(Book, {
+// Define the many-to-many association between Order and GroceryItem
+Order.belongsToMany(GroceryItem, {
   through: "OrderItem",
   foreignKey: "orderId",
-  otherKey: "bookId",
+  otherKey: "itemId",
 });
 
-// Book Model
-Book.belongsToMany(Order, {
+// GroceryItem Model
+GroceryItem.belongsToMany(Order, {
   through: "OrderItem",
-  foreignKey: "bookId",
+  foreignKey: "itemId",
   otherKey: "orderId",
 });
 
@@ -33,4 +32,4 @@ User.hasMany(Order, {
   as: "orders",
 });
 
-export { User, Group, UserGroup, Book, Order, GroceryItem };
+export { User, Group, UserGroup, Order, GroceryItem };

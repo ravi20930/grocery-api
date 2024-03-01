@@ -5,8 +5,8 @@ import {
   Model,
 } from "sequelize";
 import { sequelize } from "../config/database";
-import Book from "./GroceryItem";
 import User from "./User";
+import GroceryItem from "./GroceryItem";
 
 interface OrderAttributes {
   id?: number;
@@ -22,9 +22,12 @@ class Order extends Model<OrderAttributes> implements OrderAttributes {
 
   public customerId!: string;
 
-  public setCustomer!: BelongsToSetAssociationMixin<Customer, string>;
+  public setCustomer!: BelongsToSetAssociationMixin<User, string>;
 
-  public addBooks!: BelongsToManyAddAssociationMixin<Book, number[]>;
+  public addGroceryItems!: BelongsToManyAddAssociationMixin<
+    GroceryItem,
+    number[]
+  >;
 
   public readonly createdAt!: Date;
 }

@@ -76,7 +76,7 @@ export const removeGroceryItemById = async (
     const { id } = req.params;
     log("removing grocery item");
     await removeGroceryItem(parseInt(id));
-    const response = responseHandler(204, "successfully removed grocery item");
+    const response = responseHandler(200, "successfully removed grocery item");
     log("successfully removed grocery item.");
     return res.status(response.statusCode).json(response);
   } catch (err) {

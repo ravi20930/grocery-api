@@ -11,7 +11,9 @@ interface getAllRequestQuery {
   page?: number;
   size?: number;
   sortbyDate?: boolean;
+  sortbyInventory?: boolean;
   order?: string;
+  inventoryOrder?: string;
   id?: string;
   userId?: string;
 }
@@ -26,7 +28,17 @@ interface updateGroceryItem {
  * List grocery items.
  */
 export const getGroceryItems = async (reqQuery: getAllRequestQuery) => {
-  const { fromDate, toDate, page, size, sortbyDate, order, id } = reqQuery;
+  const {
+    fromDate,
+    toDate,
+    page,
+    size,
+    sortbyDate,
+    sortbyInventory,
+    order,
+    inventoryOrder,
+    id,
+  } = reqQuery;
   const { limit, offset } = getPagination(page || 0, size || 10);
 
   const mFromDate = fromDate ? `${fromDate} 00:00:00` : undefined;
@@ -54,6 +66,9 @@ export const getGroceryItems = async (reqQuery: getAllRequestQuery) => {
 
   if (sortbyDate && order) {
     query.order = [["createdAt", order]];
+  }
+  if (sortbyInventory && order) {
+    query.order = [["inventory", inventoryOrder]];
   }
   if (whereCondition) {
     query.where = whereCondition;
@@ -103,7 +118,7 @@ export const removeGroceryItem = async (groceryItemId: number) => {
  */
 export const updateGroceryItem = async (
   groceryItemId: number,
-  data: UpdateGroceryItem
+  data: updateGroceryItem
 ) => {
   const groceryItem = await GroceryItem.findByPk(groceryItemId);
 
@@ -133,7 +148,6 @@ export const manageInventory = async (
       }
       groceryItem.inventory -= quantity;
     }
-
     await groceryItem.save();
   } else throwError(404, "Grocery item not found.");
 };
