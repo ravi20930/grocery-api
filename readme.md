@@ -77,7 +77,6 @@ This project is a Grocery Booking API that facilitates managing grocery items, u
 5. Final `.env` should look like this along with their values:
 
    ```plaintext
-
    NODE_ENV=development
    PORT=3009
    DB_SYNC_FLAG=true
@@ -98,18 +97,13 @@ This project is a Grocery Booking API that facilitates managing grocery items, u
    GOOGLE_AUTH_CALLBACK_URL=http://localhost:3009/api/auth/google/callback
    ```
 
-```
-
 6. Optionally, manually insert the first admin user into the database for security concerns.
 
 7. Start the server:
 
 ```
-
 yarn build
 yarn start
-
 ```
 
 Ensure all environment variables are properly configured to run the application smoothly.
-```
